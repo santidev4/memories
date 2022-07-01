@@ -1,18 +1,33 @@
 import React, { useState } from "react";
-import { Avatar, Button, Paper, Typography, Grid, Container, TextField } from "@material-ui/core";
+import { useDispatch } from "react-redux"
+import { Avatar, Button, Paper, Typography, Grid, Container } from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { GoogleLogin } from "react-google-login";
 import Input from "./Input";
 import Icon from "./Icon"
+import { gapi } from "gapi-script"
 
 import useStyles from "./styles"
 
 export default function Auth(){
 
+    const dispatch = useDispatch();
     const classes = useStyles();
     const [showPassword, setShowPassword] = useState(false);
 
     const [isSignUp, setIsSignUp] = useState(false);
+    const clientId = "948298241563-6a6tg46nqqk4ap02ou9o464qorkiqt3q.apps.googleusercontent.com"
+
+    React.useEffect(() => {
+        function start() {
+            gapi.client.init({
+                clientId: clientId,
+                scope: ""
+            })
+        }
+
+        gapi.load('client:auth2', start)
+    })
 
     const handleSubmit = (e) => {
 
@@ -30,12 +45,29 @@ export default function Auth(){
     };
 
     const googleSuccess = async (res) => {
-        console.log('res', res)
+        console.log('res', res);
+        const result = res?.profileObj;
+        const token = res?.tokenId;
+
+        try {
+            dispatch({type: 'auth', data:{ result, token }})
+        } catch (error) {
+            console.log('error', error)
+        }
     };
 
     const googleFailure = (error) => {
         console.log('error', error)
-        console.log('Google Sign In was unseccussful. Try again later!')
+        console.log('Google Sign In was unseccussful. Try again later!');
+
+        // {
+        //     "error": "idpiframe_initialization_failed",
+        //     "details": "You have created a new client application 
+        //     that uses libraries for user authentication or authorization 
+        //     that will soon be deprecated. New clients must use the new libraries instead;
+        //      existing clients must also migrate before these libraries are deprecated. 
+        //      See the [Migration Guide](https://developers.google.com/identity/gsi/web/guides/gis-migration) for more information."
+        // }
     }
 
     return(
@@ -65,7 +97,7 @@ export default function Auth(){
                         { isSignUp ? 'Sign Up' : ' Sign In' }
                     </Button>
                     <GoogleLogin 
-                    clientId="948298241563-okmn5sriimhcbj5s62onhqci9p66ei59.apps.googleusercontent.com"
+                    clientId="948298241563-6a6tg46nqqk4ap02ou9o464qorkiqt3q.apps.googleusercontent.com"
                     render={(renderProps) => (
                         <Button 
                         className={classes.googleButton} 
