@@ -50,7 +50,7 @@ export default function Auth(){
         const token = res?.tokenId;
 
         try {
-            dispatch({type: 'auth', data:{ result, token }})
+            dispatch({type: 'AUTH', data:{ result, token }})
         } catch (error) {
             console.log('error', error)
         }
