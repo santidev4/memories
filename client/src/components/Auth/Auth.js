@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux"
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Avatar, Button, Paper, Typography, Grid, Container } from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { GoogleLogin } from "react-google-login";
@@ -9,13 +10,22 @@ import { gapi } from "gapi-script"
 
 import useStyles from "./styles"
 
+const initialState = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+}
+
 export default function Auth(){
 
     const dispatch = useDispatch();
     const classes = useStyles();
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-
     const [isSignUp, setIsSignUp] = useState(false);
+    const [formData, setFormData] = useState(initialState)
     const clientId = "948298241563-6a6tg46nqqk4ap02ou9o464qorkiqt3q.apps.googleusercontent.com"
 
     React.useEffect(() => {
@@ -30,7 +40,8 @@ export default function Auth(){
     })
 
     const handleSubmit = (e) => {
-
+        e.preventDefault();
+        
     };
 
     const handleChange = () => {
@@ -50,7 +61,8 @@ export default function Auth(){
         const token = res?.tokenId;
 
         try {
-            dispatch({type: 'AUTH', data:{ result, token }})
+            dispatch({type: 'AUTH', data:{ result, token }});
+            navigate('/')
         } catch (error) {
             console.log('error', error)
         }
@@ -60,14 +72,6 @@ export default function Auth(){
         console.log('error', error)
         console.log('Google Sign In was unseccussful. Try again later!');
 
-        // {
-        //     "error": "idpiframe_initialization_failed",
-        //     "details": "You have created a new client application 
-        //     that uses libraries for user authentication or authorization 
-        //     that will soon be deprecated. New clients must use the new libraries instead;
-        //      existing clients must also migrate before these libraries are deprecated. 
-        //      See the [Migration Guide](https://developers.google.com/identity/gsi/web/guides/gis-migration) for more information."
-        // }
     }
 
     return(
@@ -83,7 +87,7 @@ export default function Auth(){
                             isSignUp && (
                                 <>
                                         <Input name="firstName" label="First Name" handleChange={handleChange} autoFocus half />
-                                        <Input name="lastName" label="First Name" handleChange={handleChange} half />
+                                        <Input name="lastName" label="Last Name" handleChange={handleChange} half />
                                 </>
                             )
                         }
